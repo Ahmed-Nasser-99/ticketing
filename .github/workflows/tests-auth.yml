@@ -2,7 +2,7 @@ name: tests-auth
 
 on:
   pull_request:
-    path:
+    paths:
       - 'auth/**'
   
 jobs:
