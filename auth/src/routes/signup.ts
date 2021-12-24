@@ -1,0 +1,49 @@
+import express, { Request, Response } from 'express';
+import { body } from 'express-validator'
+import { BadRequestError, validateRequest } from '@ticketscourse/common';
+import { User } from '../models/user';
+import jwt from 'jsonwebtoken'
+
+const router = express.Router();
+
+router.post(
+    '/api/users/signup',
+    [
+        body('email')
+            .isEmail()
+            .withMessage('Email must be valid'),
+        body('password')
+            .trim()//make sure no spaces or leadings
+            .isLength({min: 4, max: 20})
+            .withMessage('password must be 4:20 chars')
+    ],
+    validateRequest, 
+    async (req: Request, res: Response) => {
+        const { email, password } = req.body;
+        const existingUser = await User.findOne({ email });
+
+        if(existingUser){
+            throw new BadRequestError('already taken')
+        }
+        const user = User.build({ email, password });  
+        await user.save();
+
+        // generate JWT
+        const userJwt = jwt.sign({
+            id: user.id,
+            email: user.email
+            }, 
+            process.env.JWT_KEY!
+        )
+
+        //store it on session object 
+        req.session = {
+            jwt: userJwt
+        }
+
+
+        res.status(201).send(user); 
+    }
+);
+
+export { router as signupRouter };
