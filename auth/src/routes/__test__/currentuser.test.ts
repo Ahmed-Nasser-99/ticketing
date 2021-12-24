@@ -8,6 +8,7 @@ it("response with details of the current user", async () => {
     .set("Cookie", cookie)
     .send()
     .expect(400);
+  // just a change
   expect(res.body.currentUser.email).toEqual("test@test.com");
 });
 
