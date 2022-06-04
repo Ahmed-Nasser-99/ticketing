@@ -1,8 +1,8 @@
 import Router from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useRequest from "../../hooks/use-request";
 
-const newTicket = () => {
+const newTicket = ({ currentUser }) => {
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState("");
   const { doRequest, errors } = useRequest({
@@ -14,6 +14,10 @@ const newTicket = () => {
     },
     onSuccess: () => Router.push("/"),
   });
+
+  useEffect(() => {
+    if (currentUser === null) Router.push("/auth/signup");
+  }, []);
 
   const onBlur = () => {
     const value = parseFloat(price);
